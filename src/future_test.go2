@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// Tests are not using assert package at the moment, as it causes some problems with `go2go`
 func TestFuture_Get(t *testing.T) {
 
 	t.Run("should wait for unfinished future", func(t *testing.T) {
@@ -14,11 +15,18 @@ func TestFuture_Get(t *testing.T) {
 			return "OK!", nil
 		})
 
-		fmt.Printf("ready with %v \n", f1.Get())
-	})
+		expected := "OK!"
+		actual := f1.Get()
+		if expected != fmt.Sprintf("%v", actual) {
+			t.Errorf("%v != %v", expected, actual)
+		}
 
-	t.Run("should get result from finished future", func(t *testing.T) {
-
+		t.Run("should get result from finished future", func(t *testing.T) {
+			actual := f1.Get()
+			if expected != fmt.Sprintf("%v", actual) {
+				t.Errorf("%v != %v", expected, actual)
+			}
+		})
 	})
 
 	t.Run("should return an error", func(t *testing.T) {
@@ -27,12 +35,27 @@ func TestFuture_Get(t *testing.T) {
 			return "", fmt.Errorf("something went wrong")
 		})
 
-		fmt.Printf("ready with %v \n", f2.Get())
+		expected := "something went wrong"
+		actual := f2.Get()
+		if expected != fmt.Sprintf("%v", actual) {
+			t.Errorf("%v != %v", expected, actual)
+		}
 	})
 }
 
 func TestFuture_Cancel(t *testing.T) {
 	t.Run("should be able to cancel a future", func(t *testing.T) {
+		f3 := NewFuture(func() (string, error) {
+			time.Sleep(100)
+			fmt.Println("I'm done!")
+			return "F3", nil
+		})
+		f3.Cancel()
 
+		expected := "F3"
+		actual := f3.Get()
+		if expected != fmt.Sprintf("%v", actual) {
+			t.Errorf("%v != %v", expected, actual)
+		}
 	})
 }
