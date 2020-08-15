@@ -1,9 +1,0 @@
-name: 'Test'
-description: 'Tests Future logic'
-inputs:
-outputs:
-runs:
-  using: "composite"
-  steps:
-    - run: ${{ github.action_path }}/install.sh
-      shell: bash
