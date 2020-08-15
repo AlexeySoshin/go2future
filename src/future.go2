@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"time"
 )
 
 type Future(type T) interface {
@@ -70,6 +69,11 @@ func NewFuture(type T)(f func() (T, error)) Future(T) {
 	}
 	fut.ctx, fut.cancel = context.WithCancel(context.Background())
 	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Println("future recovered: ", r)
+			}
+		}()
 		success, failure := f()
 
 		fut.result = &result(T){success, failure}

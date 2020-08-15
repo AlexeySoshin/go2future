@@ -52,7 +52,7 @@ func TestFuture_Cancel(t *testing.T) {
 		})
 		f3.Cancel()
 
-		expected := "F3"
+		expected := "context canceled"
 		actual := f3.Get()
 		if expected != fmt.Sprintf("%v", actual) {
 			t.Errorf("%v != %v", expected, actual)
