@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"time"
 )
 
 type Future(type T) interface {
@@ -70,6 +69,11 @@ func NewFuture(type T)(f func() (T, error)) Future(T) {
 	}
 	fut.ctx, fut.cancel = context.WithCancel(context.Background())
 	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Println("future recovered: ", r)
+			}
+		}()
 		success, failure := f()
 
 		fut.result = &result(T){success, failure}
@@ -81,28 +85,4 @@ func NewFuture(type T)(f func() (T, error)) Future(T) {
 }
 
 func main() {
-
-	f1 := NewFuture(func() (string, error) {
-		time.Sleep(1000)
-		return "F1", nil
-	})
-
-	fmt.Printf("ready with %v \n", f1.Get())
-	fmt.Printf("trying again with %v \n", f1.Get())
-
-	f2 := NewFuture(func() (string, error) {
-		time.Sleep(1000)
-		return "F2", fmt.Errorf("something went wrong")
-	})
-
-	fmt.Printf("ready with %v \n", f2.Get())
-
-	f3 := NewFuture(func() (string, error) {
-		time.Sleep(100)
-		fmt.Println("I'm done!")
-		return "F3", nil
-	})
-	f3.Cancel()
-
-	fmt.Printf("ready with %v \n", f3.Get())
 }
