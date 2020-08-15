@@ -53,7 +53,6 @@ func (this *future(T)) Get() Result(T) {
 	if this.completed {
 		return this.result
 	} else {
-		defer close(this.wait)
 		fmt.Println("Need to wait...")
 		select {
 		case <-this.wait:
@@ -75,6 +74,7 @@ func NewFuture(type T)(f func() (T, error)) Future(T) {
 		fut.result = &result(T){success, failure}
 		fut.completed = true
 		fut.wait <- true
+		close(fut.wait)
 	}()
 
 	return fut
